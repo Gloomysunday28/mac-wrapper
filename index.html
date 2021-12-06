@@ -145,6 +145,7 @@
   <script>
     const main = document.getElementsByClassName('main')[0]
     const effect = document.getElementsByClassName('effect')[0]
+    const doodle = document.querySelector('css-doodle');
     const images = ['morning', 'afternoon', 'evening']
     let index = 0
     var timer = setInterval(() => {
@@ -157,6 +158,10 @@
         effect.classList.remove('fade')
       }, 2000)
     }, 8 * 60 * 1000)
+    
+    var rainTimer = setInterval(() => {
+      doodle && doodle.update()
+    }, 5000)
   </script>
 </body>
 
