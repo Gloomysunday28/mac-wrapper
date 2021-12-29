@@ -142,26 +142,66 @@
     <div class='window'></div>
     <css-doodle use="var(--rule)"></css-doodle>
   </div>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1.10.7/dayjs.min.js"></script>
   <script>
     const main = document.getElementsByClassName('main')[0]
     const effect = document.getElementsByClassName('effect')[0]
     const doodle = document.querySelector('css-doodle');
     const images = ['morning', 'afternoon', 'evening']
-    let index = 0
-    var timer = setInterval(() => {
+    const delayTimeMap = new Map([[[9, 16], [-1, 7]], [[16, 18], [0, 2]]])
+    const nowDate = new Date()
+    const hour = nowDate.getHours()
+    let index = -1
+    let delayTime = 0
+    function getDelayTime() {
+      for (let [key, value] of delayTimeMap) {
+        const [start, end] = key
+        const [vIndex, vValue] = value
+        if (hour >= start && hour < end) {
+          index = vIndex // 图片初始值
+          delayTime = dayjs(new Date(`2021/09/28 ${end}:00:00`)).diff(dayjs(new Date(`2021/09/28 ${hour}:${nowDate.getMinutes()}:${nowDate.getSeconds()}`)))
+          break
+        } else {
+          index = 2
+          delayTime = dayjs(new Date(`2021/09/29 00:00:00`)).diff(dayjs(new Date(`2021/09/28 ${hour}:${nowDate.getMinutes()}:${nowDate.getSeconds()}`)))
+        }
+      }
+    }
+    
+    function startAnimation(init) {
       effect.src = `./${images[index]}.jpg`
       if (index === 2) index = -1
       main.src = `./${images[++index]}.jpg`
-      effect.classList.add('fade')
-      var t = setTimeout(() => {
-        clearTimeout(t)
-        effect.classList.remove('fade')
-      }, 2000)
-    }, 8 * 60 * 1000)
-    
+      delayTime = index === 0 ? 5 : ( index === 1 ? 3 : 15 ) * 3600_000
+      initTimer(false)
+
+      if (!init) {
+        effect.classList.add('fade')
+        var t = setTimeout(() => {
+          clearTimeout(t)
+          effect.classList.remove('fade')
+        }, 2000)
+      }
+    }
+
+    function initTimer(init) {
+      var timer = setTimeout(() => {
+        startAnimation(init)
+        clearTimeout(timer)
+      }, delayTime)
+
+      return timer
+    }
+
     var rainTimer = setInterval(() => {
       doodle && doodle.update()
-    }, 5000)
+    }, 1000 * 25)
+
+
+    getDelayTime()
+    initTimer(true)
+    if (index === 2) index = 1
+    main.src = `./${images[++index]}.jpg`
   </script>
 </body>
 
